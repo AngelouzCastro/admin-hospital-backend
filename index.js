@@ -12,20 +12,16 @@ const puerto = process.env.PORT;
 //Configurar CORS
 app.use(cors());
 
+// Lectura y parseo del body
+app.use( exxpress.json() );
+
 //Base de datos
 dbConection();
 
 
 
 // Rutas
-app.get( '/', (req, res) => {
-
-    res.json({
-        ok: true,
-        msg: 'hola mundo'
-    })
-
-} );
+app.use( '/api/usuarios' , require('./routes/usuarios') );
 
 
 app.listen( puerto, () => {
