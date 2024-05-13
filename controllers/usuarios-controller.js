@@ -7,12 +7,23 @@ const Usuario = require('../models/usuario-model');
 
 const getUsuarios = async (req, res) => {
 
-    const usuario = await Usuario.find({}, 'nombre email role google');
+    const desde = Number(req.query.desde) || 0;
+
+    //hace las dos operaciones al mismo tiempo
+    const [ usuarios, total ] = await Promise.all([
+        Usuario 
+            .find({}, 'nombre email role google')
+            .skip( desde )
+            .limit( 5 ),
+
+        Usuario.countDocuments()
+    ]);
 
     res.json({
         ok: true,
-        usuario,
-        uid: req.uid
+        usuarios,
+        uid: req.uid,
+        total
     });
 }
 
