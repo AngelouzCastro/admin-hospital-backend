@@ -50,20 +50,74 @@ const crearHospital = async ( req, res = response ) => {
 
 }
 
-const actualizarHospitales = ( req, res = response ) => {
+const actualizarHospitales = async ( req, res = response ) => {
 
-    res.status(200).json({
-        ok: true,
-        msg: 'actualizar hospitales'
-    })
+    try {
+        
+        const hospitalId = req.params.id;
+        const usuario = req.uid;
+
+        const hospitalD = await Hospital.findById({ _id: hospitalId });
+
+        if ( !hospitalD ) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'no se encontro ningun hospital con ese Id'
+            });
+        }
+
+        const cambiosHospital = {
+            ...req.body,
+            usuario
+        }
+
+        const hospitalActualizado = await Hospital.findByIdAndUpdate( hospitalId, cambiosHospital, { new: true });
+
+        res.status(200).json({
+            ok: true,
+            hospital: hospitalActualizado
+        });
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Hable con el asministrador'
+        });
+    }
 }
 
-const eliminarHospital = ( req, res = response ) => {
+const eliminarHospital = async ( req, res = response ) => {
 
-    res.status(200).json({
-        ok: true,
-        msg: 'eliminar hospitales'
-    })
+    try {
+        
+        const hospitalId = req.params.id;
+        const usuario = req.uid;
+
+        const hospitalD = await Hospital.findById({ _id: hospitalId });
+
+        if ( !hospitalD ) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'no se encontro ningun hospital con ese Id'
+            });
+        }
+
+        await Hospital.findByIdAndDelete( hospitalId );
+
+        res.status(200).json({
+            ok: true,
+            msg: 'Hospital eliminado'
+        });
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Hable con el asministrador'
+        });
+    }
+
 }
 
 module.exports = {

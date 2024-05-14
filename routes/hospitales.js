@@ -11,6 +11,7 @@ const {
     crearHospital
  } = require('../controllers/hospitales-controller');
 const { validarJWT } = require('../middlewares/validar-jwt');
+const { validarIdMongo } = require('../middlewares/validar-IdMongo');
 
 const router =  Router();
 
@@ -26,12 +27,18 @@ router.post('/',
  );
 
 router.put('/:id',
-    [],
+    [ 
+        validarJWT,
+        validarIdMongo
+     ],
     actualizarHospitales
 );
 
 router.delete('/:id',
-    [],
+    [
+        validarJWT,
+        validarIdMongo
+    ],
     eliminarHospital
 );
 
