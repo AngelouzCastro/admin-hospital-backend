@@ -34,8 +34,9 @@ const UsuarioSchema = Schema({
 });
 
 // cambiar forma visual de ver el objeto en mi servidor
+//para implementar el modelo
 UsuarioSchema.method('toJSON', function() {
-    const { __v, _id, ...Object } = this.toObject();
+    const { __v, _id, password, ...Object } = this.toObject();
 
     Object.uid = _id;
     return Object;

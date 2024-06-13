@@ -5,8 +5,9 @@ const { Router } = require('express');
 const { check } = require('express-validator');
 const { validarCampos } = require('../middlewares/validar-campos');
 
-const { getUsuarios, createUsuario, actualizarUsuario, deleteUsuario } = require('../controllers/usuarios-controller');
-const { validarJWT } = require('../middlewares/validate-jwt');
+const { getUsuarios, createUsuario, ActualizarUsuario, BorrarUsuario } = require('../controllers/usuarios-controller');
+const { validarJWT } = require('../middlewares/validar-jwt');
+const { validarIdMongo } = require('../middlewares/validar-IdMongo');
 
 const router =  Router();
 
@@ -22,23 +23,24 @@ router.post('/',
     createUsuario 
  );
 
- router.put('/:id',
+router.put('/:id',
     [
         validarJWT,
         check('nombre', 'El nombre es obligatorio').not().isEmpty(),
         check('email', 'El email es obligatorio').isEmail(),
-        check('role', 'El role es obligatorio').not().isEmpty(),
-        validarCampos
+        check('role', 'El rol es obligatorio').not().isEmpty(),
+        validarCampos,
+        validarIdMongo
     ],
-    actualizarUsuario
+    ActualizarUsuario
 );
 
- router.delete('/:id',
+router.delete('/:id',
     [
-        validarJWT
+        validarJWT,
+        validarIdMongo
     ],
-    deleteUsuario
+    BorrarUsuario
 );
-
 
 module.exports = router;

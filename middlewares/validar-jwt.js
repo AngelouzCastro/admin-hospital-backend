@@ -1,39 +1,37 @@
-
 const jwt = require('jsonwebtoken');
 
 
-// los middelwere son como cualquier otro controlador solo que tienen un next()
+
 const validarJWT = ( req, res, next ) => {
     
-    //leer el token
+    //Leer token
     const token = req.header('x-token');
 
     if ( !token ) {
         return res.status(401).json({
             ok: false,
-            msg: 'No hay token en la peticion'
-        });
+            msg: 'No existe un token en la peticion'
+        })
     }
 
     try {
 
-        //validar firma
         const { uid } = jwt.verify( token, process.env.JWT_SECRET );
-        req.uid = uid; // esto para compartir informacion 
-
-        // concluye middleware
+        //una ventaja de el middleware es que puedo modificar la informacion antes de enviarla al controller
+        req.uid = uid;
         next();
 
         
     } catch (error) {
         return res.status(401).json({
             ok: false,
-            msh: 'Token no valido'
-        });
+            msg: 'Token no valido'
+        })
     }
 
 }
 
+
 module.exports = {
-    validarJWT,
+    validarJWT
 }

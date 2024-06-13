@@ -1,54 +1,113 @@
 const { response } = require('express');
-const bcrypt = require('bcryptjs');
-
 const Usuario = require('../models/usuario-model');
+const bcryptjs = require('bcryptjs');
 const { generarJWT } = require('../helpers/jwt');
+const { googleVerify } = require('../helpers/google-verify');
+
+
 
 const login = async( req, res = response ) => {
-
-    const { email, password } = req.body;
-
+    
     try {
 
-        //verficar email
-        const usuarioDb = await Usuario.findOne({ email });
+        const { email, password } = req.body;
 
-        console.log(usuarioDb);
+        //verificar email
+        const usuarioDb = await Usuario.findOne({ email });
         if ( !usuarioDb ) {
             return res.status(404).json({
                 ok: false,
-                msg: 'credenciales invalidas'
+                msg: 'emial o contraseña no encontrada'
             });
         }
 
         //verificar password
-        const validPassword = bcrypt.compareSync( password, usuarioDb.password );
+        const validarPassword = bcryptjs.compareSync( password, usuarioDb.password );
 
-        if ( !validPassword ) {
-            return res.status(404).json({
+        if ( !validarPassword ) {
+            return res.status(400).json({
                 ok: false,
-                msg: 'credenciales invalidas'
+                msg: 'emial o contraseña no encontrada'
             });
         }
 
-        //generar TOKEN - JWT
-
+        //Generar - JWT
         const token = await generarJWT( usuarioDb.id );
 
-        return res.status(200).json({
+        res.status(200).json({
             ok: true,
             token
         });
 
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
+        res.status(500).json({
             ok: false,
-            msg: 'Error en el login'
+            msg: 'hable con el administrador'
         });
     }
 }
 
+const googleSignIn = async ( req, res = response ) => {
+
+    try {
+        const { email, name, picture } = await googleVerify( req.body.token );
+
+        const usuarioDb = await Usuario.findOne({ email });
+        let usuario;
+
+        if ( !usuarioDb ) {
+            usuario = new Usuario({
+                nombre: name,
+                email,
+                password: '@@@',
+                img: picture,
+                google: true
+            });
+            
+        } else {
+            usuario = usuarioDb;
+            usuario.google = true;
+        }
+
+        await usuario.save();
+
+        
+        //Generar - JWT
+        const token = await generarJWT( usuario.id );
+
+        res.json({
+            ok: true,
+            email,
+            name,
+            picture,
+            token
+        });
+        
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({
+            ok: false,
+            msg: 'Token de google no es correcto'
+        });
+    }
+}
+
+const renewTokent = async ( req, res = response ) => {
+
+    const uid = req.uid;
+
+    //Generar - JWT
+    const token = await generarJWT( uid );
+
+    res.json({
+        ok: true,
+        token
+    })
+}
+
 module.exports = {
-    login
+    login,
+    googleSignIn,
+    renewTokent
 }
