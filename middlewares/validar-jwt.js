@@ -5,12 +5,12 @@ const jwt = require('jsonwebtoken');
 const validarJWT = ( req, res, next ) => {
     
     //Leer token
-    const token = req.header('x-token');
+    const token = req.header('token'); 
 
     if ( !token ) {
         return res.status(401).json({
             ok: false,
-            msg: 'No existe un token en la peticion'
+            msg: 'No existe un token en la peticion' 
         })
     }
 

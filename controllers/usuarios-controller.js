@@ -3,18 +3,19 @@ const bcryptjs = require('bcryptjs');
 const { generarJWT } = require('../helpers/jwt');
 
 
-const Usuario = require('../models/usuario-model'); 
+const Usuario = require('../models/usuario-model');
 
 const getUsuarios = async (req, res) => {
 
     const desde = Number(req.query.desde) || 0;
+    const limit = Number(req.query.limit) || 5;
 
     //hace las dos operaciones al mismo tiempo
     const [ usuarios, total ] = await Promise.all([
         Usuario 
             .find({}, 'nombre email role google img')
             .skip( desde )
-            .limit( 5 ),
+            .limit( limit ),
 
         Usuario.countDocuments()
     ]);
